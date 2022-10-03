@@ -9,8 +9,8 @@ import "dotenv/config"
 async function main() {
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!);
   const encryptdJsonKEy = await wallet.encrypt(
-    process.env.PRIVATE_KEY_PASSWORD,
-    process.env.PRIVATE_KEY
+    process.env.PRIVATE_KEY_PASSWORD!,
+    process.env.PRIVATE_KEY!
   );
   console.log(encryptdJsonKEy);
   fs.writeFileSync('./.encrypted.json', encryptdJsonKEy);
