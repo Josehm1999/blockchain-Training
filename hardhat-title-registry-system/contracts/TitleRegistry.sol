@@ -106,13 +106,26 @@ contract TitlRegistry {
         payable
         isListed(titleAddress, tokenId)
     {
-        if (msg.value < listedItem.price) {
+        Listing memory listedTitle = s_listings[titleAddress][tokenId];
+
+        if (msg.value < listedTitle.price) {
             revert TitlRegistry__PriceNotMet(
                 titleAddress,
                 tokenId,
-                listedItem.price
+                listedTitle.price
             );
         }
+        // No se le envía directamente el dinero al vendedor
+        // https://github.com/fravoll/solidity-patterns/blob/master/docs/pull_over_push.md
+        s_proceeds[listedTitle.seller] =
+            s_proceeds[listedTitle.seller] +
+            msg.value;
+        delete (s_listings[titleAddress][tokenId]);
+        IERC721(titleAddress).transferFrom(
+            listedTitle.seller,
+            msg.sender,
+            tokenId
+        );
     }
 }
 
