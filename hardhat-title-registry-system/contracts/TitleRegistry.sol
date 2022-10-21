@@ -3,20 +3,20 @@ pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-error TitlRegistry__PriceMustBeAboveZero();
+error TitleRegistry__PriceMustBeAboveZero();
 error TitleRegistry__NotApprovedForSystem();
-error TitlRegistry__AlreadyListed(address titleAddress, uint256 tokenId);
+error TitleRegistry__AlreadyListed(address titleAddress, uint256 tokenId);
 error TitleRegistry__NotOwner();
 error TitleRegistry__NotListed(address titleAddress, uint256 tokenId);
 error TitleRegistry__NoProceeds();
 error TitleRegistry__TransferFailed();
-error TitlRegistry__PriceNotMet(
+error TitleRegistry__PriceNotMet(
     address titleAddress,
     uint256 tokenId,
     uint256 price
 );
 
-contract TitlRegistry is ReentrancyGuard {
+contract TitleRegistry is ReentrancyGuard {
     struct Listing {
         uint256 price;
         address seller;
@@ -57,7 +57,7 @@ contract TitlRegistry is ReentrancyGuard {
     ) {
         Listing memory listing = s_listings[titleAddress][tokenId];
         if (listing.price > 0) {
-            revert TitlRegistry__AlreadyListed(titleAddress, tokenId);
+            revert TitleRegistry__AlreadyListed(titleAddress, tokenId);
         }
         _;
     }
@@ -103,7 +103,7 @@ contract TitlRegistry is ReentrancyGuard {
         isOwner(titleAddress, tokenId, msg.sender)
     {
         if (price <= 0) {
-            revert TitlRegistry__PriceMustBeAboveZero();
+            revert TitleRegistry__PriceMustBeAboveZero();
         }
 
         // 1. Enviar el titulo de propiedad al contrato. Tranferencia -> Contrato "mantener" el titulo.
@@ -127,7 +127,7 @@ contract TitlRegistry is ReentrancyGuard {
         Listing memory listedTitle = s_listings[titleAddress][tokenId];
 
         if (msg.value < listedTitle.price) {
-            revert TitlRegistry__PriceNotMet(
+            revert TitleRegistry__PriceNotMet(
                 titleAddress,
                 tokenId,
                 listedTitle.price
@@ -186,7 +186,7 @@ contract TitlRegistry is ReentrancyGuard {
         }
     }
 
-    // Getter functions
+    // Funciones Getter
 
     function getListing(address titleAddress, uint256 tokenId)
         external

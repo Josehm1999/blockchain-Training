@@ -38,4 +38,4 @@ const deployTitleSystem: DeployFunction = async function (
 }
 
 export default deployTitleSystem
-deployTitleSystem.tags = ['all', 'titleRegistry']
+deployTitleSystem.tags = ['all', 'titleregistry']
