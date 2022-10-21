@@ -2,18 +2,21 @@
 pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 error TitlRegistry__PriceMustBeAboveZero();
 error TitleRegistry__NotApprovedForSystem();
 error TitlRegistry__AlreadyListed(address titleAddress, uint256 tokenId);
-error TittleRegistry__NotOwner();
-error TitlRegistry__NotListed(address titleAddress, uint256 tokenId);
+error TitleRegistry__NotOwner();
+error TitleRegistry__NotListed(address titleAddress, uint256 tokenId);
+error TitleRegistry__NoProceeds();
+error TitleRegistry__TransferFailed();
 error TitlRegistry__PriceNotMet(
     address titleAddress,
     uint256 tokenId,
     uint256 price
 );
 
-contract TitlRegistry {
+contract TitlRegistry is ReentrancyGuard {
     struct Listing {
         uint256 price;
         address seller;
@@ -26,9 +29,23 @@ contract TitlRegistry {
         uint256 price
     );
 
-    // Listado de las direcciones (ethereum) de los titulos -> TokenID Titulo -> Listing
-    mapping(address => mapping(uint256 => Listing)) private s_listings;
+    event TitleBought(
+        address indexed buyer,
+        address indexed titleAddress,
+        uint256 indexed titleId,
+        uint256 price
+    );
 
+    event TitleCanceled(
+        address indexed seller,
+        address indexed titleAddress,
+        uint256 indexed tokenId
+    );
+
+    // Listado de las direcciones (ethereum) de los
+    // titulos -> TokenID Titulo -> Listing
+
+    mapping(address => mapping(uint256 => Listing)) private s_listings;
     // Direccion (etherem) del vendedor -> Cantidad recolectada
     mapping(address => uint256) private s_proceeds;
 
@@ -49,7 +66,7 @@ contract TitlRegistry {
         Listing memory listing = s_listings[titleAddress][tokenId];
 
         if (listing.price <= 0) {
-            revert TitlRegistry__NotListed(titleAddress, tokenId);
+            revert TitleRegistry__NotListed(titleAddress, tokenId);
         }
         _;
     }
@@ -61,7 +78,7 @@ contract TitlRegistry {
         IERC721 title = IERC721(titleAddress);
         address owner = title.ownerOf(tokenId);
         if (spender != owner) {
-            revert TittleRegistry__NotOwner();
+            revert TitleRegistry__NotOwner();
         }
         _;
     }
@@ -104,6 +121,7 @@ contract TitlRegistry {
     function buyTitle(address titleAddress, uint256 tokenId)
         external
         payable
+        nonReentrant
         isListed(titleAddress, tokenId)
     {
         Listing memory listedTitle = s_listings[titleAddress][tokenId];
@@ -117,15 +135,69 @@ contract TitlRegistry {
         }
         // No se le envía directamente el dinero al vendedor
         // https://github.com/fravoll/solidity-patterns/blob/master/docs/pull_over_push.md
+
+        // Enviar el dinero al usuario ❌
+        // Hacer que tengan que retirar el dinero ✅
         s_proceeds[listedTitle.seller] =
             s_proceeds[listedTitle.seller] +
             msg.value;
         delete (s_listings[titleAddress][tokenId]);
-        IERC721(titleAddress).transferFrom(
+        IERC721(titleAddress).safeTransferFrom(
             listedTitle.seller,
             msg.sender,
             tokenId
         );
+        // revisar que el Titulo fue transferido correctamente
+        emit TitleBought(msg.sender, titleAddress, tokenId, listedTitle.price);
+    }
+
+    function cancelListing(address titleAddress, uint256 tokenId)
+        external
+        isOwner(titleAddress, tokenId, msg.sender)
+        isListed(titleAddress, tokenId)
+    {
+        delete (s_listings[titleAddress][tokenId]);
+        emit TitleCanceled(msg.sender, titleAddress, tokenId);
+    }
+
+    function updateListings(
+        address titleAddress,
+        uint256 tokenId,
+        uint256 newPrice
+    )
+        external
+        isListed(titleAddress, tokenId)
+        isOwner(titleAddress, tokenId, msg.sender)
+    {
+        s_listings[titleAddress][tokenId].price = newPrice;
+        emit TitleListed(msg.sender, titleAddress, tokenId, newPrice);
+    }
+
+    function withDrawProceeds() external {
+        uint256 proceeds = s_proceeds[msg.sender];
+
+        if (proceeds <= 0) {
+            revert TitleRegistry__NoProceeds();
+        }
+        s_proceeds[msg.sender] = 0;
+        (bool success, ) = payable(msg.sender).call{value: proceeds}("");
+        if (!success) {
+            revert TitleRegistry__TransferFailed();
+        }
+    }
+
+    // Getter functions
+
+    function getListing(address titleAddress, uint256 tokenId)
+        external
+        view
+        returns (Listing memory)
+    {
+        return s_listings[titleAddress][tokenId];
+    }
+
+    function getProceeds(address seller) external view returns (uint256) {
+        return s_proceeds[seller];
     }
 }
 
