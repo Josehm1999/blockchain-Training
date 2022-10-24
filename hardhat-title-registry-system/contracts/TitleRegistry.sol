@@ -3,18 +3,14 @@ pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-error TitleRegistry__PriceMustBeAboveZero();
-error TitleRegistry__NotApprovedForSystem();
-error TitleRegistry__AlreadyListed(address titleAddress, uint256 tokenId);
-error TitleRegistry__NotOwner();
-error TitleRegistry__NotListed(address titleAddress, uint256 tokenId);
-error TitleRegistry__NoProceeds();
-error TitleRegistry__TransferFailed();
-error TitleRegistry__PriceNotMet(
-    address titleAddress,
-    uint256 tokenId,
-    uint256 price
-);
+error PriceMustBeAboveZero();
+error NotApprovedForSystem();
+error AlreadyListed(address titleAddress, uint256 tokenId);
+error NotOwner();
+error NotListed(address titleAddress, uint256 tokenId);
+error NoProceeds();
+error TransferFailed();
+error PriceNotMet(address titleAddress, uint256 tokenId, uint256 price);
 
 contract TitleRegistry is ReentrancyGuard {
     struct Listing {
@@ -57,7 +53,7 @@ contract TitleRegistry is ReentrancyGuard {
     ) {
         Listing memory listing = s_listings[titleAddress][tokenId];
         if (listing.price > 0) {
-            revert TitleRegistry__AlreadyListed(titleAddress, tokenId);
+            revert AlreadyListed(titleAddress, tokenId);
         }
         _;
     }
@@ -66,7 +62,7 @@ contract TitleRegistry is ReentrancyGuard {
         Listing memory listing = s_listings[titleAddress][tokenId];
 
         if (listing.price <= 0) {
-            revert TitleRegistry__NotListed(titleAddress, tokenId);
+            revert NotListed(titleAddress, tokenId);
         }
         _;
     }
@@ -78,7 +74,7 @@ contract TitleRegistry is ReentrancyGuard {
         IERC721 title = IERC721(titleAddress);
         address owner = title.ownerOf(tokenId);
         if (spender != owner) {
-            revert TitleRegistry__NotOwner();
+            revert NotOwner();
         }
         _;
     }
@@ -103,7 +99,7 @@ contract TitleRegistry is ReentrancyGuard {
         isOwner(titleAddress, tokenId, msg.sender)
     {
         if (price <= 0) {
-            revert TitleRegistry__PriceMustBeAboveZero();
+            revert PriceMustBeAboveZero();
         }
 
         // 1. Enviar el titulo de propiedad al contrato. Tranferencia -> Contrato "mantener" el titulo.
@@ -112,7 +108,7 @@ contract TitleRegistry is ReentrancyGuard {
 
         IERC721 title = IERC721(titleAddress);
         if (title.getApproved(tokenId) != address(this)) {
-            revert TitleRegistry__NotApprovedForSystem();
+            revert NotApprovedForSystem();
         }
         s_listings[titleAddress][tokenId] = Listing(price, msg.sender);
         emit TitleListed(msg.sender, titleAddress, tokenId, price);
@@ -127,11 +123,7 @@ contract TitleRegistry is ReentrancyGuard {
         Listing memory listedTitle = s_listings[titleAddress][tokenId];
 
         if (msg.value < listedTitle.price) {
-            revert TitleRegistry__PriceNotMet(
-                titleAddress,
-                tokenId,
-                listedTitle.price
-            );
+            revert PriceNotMet(titleAddress, tokenId, listedTitle.price);
         }
         // No se le envía directamente el dinero al vendedor
         // https://github.com/fravoll/solidity-patterns/blob/master/docs/pull_over_push.md
@@ -177,12 +169,12 @@ contract TitleRegistry is ReentrancyGuard {
         uint256 proceeds = s_proceeds[msg.sender];
 
         if (proceeds <= 0) {
-            revert TitleRegistry__NoProceeds();
+            revert NoProceeds();
         }
         s_proceeds[msg.sender] = 0;
         (bool success, ) = payable(msg.sender).call{value: proceeds}("");
         if (!success) {
-            revert TitleRegistry__TransferFailed();
+            revert TransferFailed();
         }
     }
 
