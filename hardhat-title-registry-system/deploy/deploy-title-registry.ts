@@ -1,10 +1,10 @@
 import {
     developmentChains,
     VERIFICATION_BLOCK_CONFIRMATIONS,
-} from '../helper-hardhat-config'
-import verify from '../utils/verify'
-import { DeployFunction } from 'hardhat-deploy/types'
-import { HardhatRuntimeEnvironment } from 'hardhat/types'
+} from "../helper-hardhat-config"
+import verify from "../utils/verify"
+import { DeployFunction } from "hardhat-deploy/types"
+import { HardhatRuntimeEnvironment } from "hardhat/types"
 
 const deployTitleSystem: DeployFunction = async function (
     hre: HardhatRuntimeEnvironment
@@ -16,10 +16,10 @@ const deployTitleSystem: DeployFunction = async function (
         ? 1
         : VERIFICATION_BLOCK_CONFIRMATIONS
 
-    log('----------------------------------------------------')
+    log("----------------------------------------------------")
 
     const args: any[] = []
-    const titleRegistry = await deploy('TitleRegistry', {
+    const titleRegistry = await deploy("TitleRegistry", {
         from: deployer,
         args: args,
         log: true,
@@ -30,12 +30,12 @@ const deployTitleSystem: DeployFunction = async function (
         !developmentChains.includes(network.name) &&
         process.env.ETHERSCAN_API_KEY
     ) {
-        log('verificando...')
+        log("verificando...")
         await verify(titleRegistry.address, args)
     }
 
-    log('----------------------------------------------------')
+    log("----------------------------------------------------")
 }
 
 export default deployTitleSystem
-deployTitleSystem.tags = ['all', 'titleregistry']
+deployTitleSystem.tags = ["all", "titleregistry"]

@@ -6,7 +6,8 @@ pragma solidity ^0.8.7;
 
 contract BasicNft is ERC721 {
     string public constant TOKEN_URI =
-        "ipfs://bafybeid7f734pgufa5ttlws3tokpr4zgwmic2unyf2cabo2inizlpi7wuy/?filename=TituloPrueba.json";
+        // "ipfs://bafybeid7f734pgufa5ttlws3tokpr4zgwmic2unyf2cabo2inizlpi7wuy/?filename=TituloPrueba.json";
+        "ipfs://bafybeiedftxqa2yck5bxo6j6drlxntzat33xoj36ls6jwxfdfsd7tl7a4q/?filename=TituloPrueba.json";
     uint256 private s_tokenCounter;
 
     event TitleMinted(uint256 indexed tokenId);
