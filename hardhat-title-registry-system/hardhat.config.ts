@@ -49,7 +49,7 @@ const config: HardhatUserConfig = {
         },
         goerli: {
             url: GOERLI_RPC_URL,
-            accounts: PRIVATE_KEY !== undefined ? [PRIVATE_KEY] : [],
+            accounts: [PRIVATE_KEY],
             //   accounts: {
             //     mnemonic: MNEMONIC,
             //   },
