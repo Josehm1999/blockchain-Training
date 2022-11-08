@@ -85,8 +85,9 @@ contract TitleRegistry is ReentrancyGuard {
      * @param titleAddress: Direccion (ethereum) del titulo
      * @param tokenId: El token identificador del titulo
      * @param price: El precio de venta del titulo de la propiedad listada
-     * @dev Tecnicamente, se podria utilizar el contrato como una cuenta de retencion para el titulo
-     * pero de esta manera el dueño puede mantener su titulo mientras se encuentra listado
+     * @dev Se utiliza el contrato como una cuenta de
+     * retencion para el titulo pero de esta manera el dueño puede mantener su
+     * titulo mientras se encuentra listado
      */
 
     function listTitle(
