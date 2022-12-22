@@ -10,7 +10,7 @@ import { TitleRegistry, BasicNft } from "../../typechain-types"
           let titleregistry: TitleRegistry,
               titleregistryContract: TitleRegistry,
               basicNft: BasicNft
-          const PRICE = ethers.utils.parseEther("0.1")
+          const PRICE = ethers.utils.parseEther("0.6")
           const TOKEN_ID = 0
           let deployer: Signer
           let user: Signer
@@ -28,6 +28,14 @@ import { TitleRegistry, BasicNft } from "../../typechain-types"
           })
 
           describe("listTitle", function () {
+              it("No se puede listar un titulo de propiedad con precio 0", async function () {
+                  await expect(
+                      titleregistry.listTitle(basicNft.address, TOKEN_ID, 0.0)
+                  ).to.be.revertedWithCustomError(
+                      titleregistry,
+                      "PriceMustBeAboveZero"
+                  )
+              })
               it("Emite un evento despues de listar un titulo", async function () {
                   expect(
                       await titleregistry.listTitle(

@@ -18,6 +18,10 @@ contract TitleRegistry is ReentrancyGuard {
         address seller;
     }
 
+    receive() external payable {} // to support receiving ETH by default
+
+    fallback() external payable {}
+
     event TitleListed(
         address indexed seller,
         address indexed titleAddress,
@@ -131,9 +135,7 @@ contract TitleRegistry is ReentrancyGuard {
 
         // Enviar el dinero al usuario ❌
         // Hacer que tengan que retirar el dinero ✅
-        s_proceeds[listedTitle.seller] =
-            s_proceeds[listedTitle.seller] +
-            msg.value;
+        s_proceeds[listedTitle.seller] += msg.value;
         delete (s_listings[titleAddress][tokenId]);
         IERC721(titleAddress).safeTransferFrom(
             listedTitle.seller,

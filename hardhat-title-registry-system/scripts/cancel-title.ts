@@ -9,7 +9,7 @@ async function cancelListing() {
     const tx = await titleRegistry.cancelListing(basicTitle.address, TOKEN_ID)
     await tx.wait(1)
     console.log("Listado del titulo cancelado")
-    if ((network.config.chainId = 31337)) {
+    if ((network.config.chainId = 1337)) {
         await moveBlocks(2, 1000)
     }
 }

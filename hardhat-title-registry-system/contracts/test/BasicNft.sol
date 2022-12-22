@@ -8,6 +8,7 @@ contract BasicNft is ERC721 {
     string public constant TOKEN_URI =
         // "ipfs://bafybeid7f734pgufa5ttlws3tokpr4zgwmic2unyf2cabo2inizlpi7wuy/?filename=TituloPrueba.json";
         "ipfs://bafybeiffbgj6ktakzcplqdn3j34ao4f7b555gjlvlfinbfehbvmqc4taue/?filename=TituloPrueba.json";
+    // "ipfs://bafybeiffbgj6ktakzcplqdn3j34ao4f7b555gjlvlfinbfehbvmqc4taue/?filename=TituloPrueba.json";
     uint256 private s_tokenCounter;
 
     event TitleMinted(uint256 indexed tokenId);

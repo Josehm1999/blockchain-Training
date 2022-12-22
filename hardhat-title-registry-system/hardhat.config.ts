@@ -7,6 +7,7 @@ import "hardhat-gas-reporter"
 import "dotenv/config"
 import "solidity-coverage"
 import "hardhat-deploy"
+import "hardhat-gas-trackooor"
 import { HardhatUserConfig } from "hardhat/config"
 
 /**
@@ -33,19 +34,20 @@ const ETHERSCAN_API_KEY =
 const POLYGONSCAN_API_KEY =
     process.env.POLYGONSCAN_API_KEY || "Your polygonscan API key"
 const REPORT_GAS = process.env.REPORT_GAS || false
+const COINMARKET_API_KEY = process.env.COINMARKET_API_KEY
 
 const config: HardhatUserConfig = {
     defaultNetwork: "hardhat",
     networks: {
         hardhat: {
-            // // If you want to do some forking, uncomment this
             // forking: {
-            //   url: MAINNET_RPC_URL
-            // }
-            chainId: 31337,
+            //   url: GOERLI_RPC_URL
+            // },
+            chainId: 1337,
+            // gasPrice: 21,
         },
         localhost: {
-            chainId: 31337,
+            chainId: 1337,
         },
         goerli: {
             url: GOERLI_RPC_URL,
@@ -74,17 +76,19 @@ const config: HardhatUserConfig = {
     },
     etherscan: {
         // npx hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
-        apiKey: {
-            goerli: ETHERSCAN_API_KEY,
-            polygon: POLYGONSCAN_API_KEY,
-        },
+        apiKey: ETHERSCAN_API_KEY,
     },
     gasReporter: {
         enabled: true,
         currency: "PEN",
+        // gasPrice: 20,
         outputFile: "gas-report.txt",
-        noColors: true,
-        // coinmarketcap: process.env.COINMARKETCAP_API_KEY,
+        noColors: false,
+        showTimeSpent: true,
+        coinmarketcap: COINMARKET_API_KEY,
+        token: "ETH",
+        // token: 'MATIC',
+        // gasPriceApi: process.env.ETHERSCAN_API_KEY
     },
     namedAccounts: {
         deployer: {
@@ -99,14 +103,13 @@ const config: HardhatUserConfig = {
         },
     },
     solidity: {
-        compilers: [
-            {
-                version: "0.8.7",
+        version: "0.8.7",
+        settings: {
+            optimizer: {
+                enabled: true,
+                runs: 1000,
             },
-            {
-                version: "0.6.6",
-            },
-        ],
+        },
     },
     mocha: {
         timeout: 200000, // 200 seconds max for running tests

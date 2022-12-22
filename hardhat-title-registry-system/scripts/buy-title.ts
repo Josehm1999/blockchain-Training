@@ -5,7 +5,7 @@ const TOKEN_ID = 1
 
 async function buyTitle() {
     const titleRegistry = await ethers.getContract("TitleRegistry")
-    const basicTitle = await ethers.getContract("BasicTitle")
+    const basicTitle = await ethers.getContract("BasicNft")
     const listing = await titleRegistry.getListing(basicTitle.address, TOKEN_ID)
     const price = listing.price.toString()
     const tx = await titleRegistry.buyTitle(basicTitle.address, TOKEN_ID, {
@@ -14,7 +14,7 @@ async function buyTitle() {
     await tx.wait(1)
     console.log("Transaccion completada")
 
-    if ((network.config.chainId = 31337)) {
+    if ((network.config.chainId = 1337)) {
         await moveBlocks(2, 1000)
     }
 }

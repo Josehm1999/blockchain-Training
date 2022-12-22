@@ -18,7 +18,7 @@ async function mintAndList() {
     await tx.wait(1)
     console.log("Listado!")
 
-    if (network.config.chainId == 31337) {
+    if (network.config.chainId == 1337) {
         await moveBlocks(1, 1000)
     }
 }
